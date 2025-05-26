@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>E-Salon App with Login & CRUD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Poppins:wght@300;500&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #eef2fb;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  #app, #login-section {
+    width: 100%;
+    max-width: 480px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(101, 66, 255, 0.15);
+    padding: 2rem 2.5rem;
+  }
+
+  h1, h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: #5a3eaa;
+    margin-bottom: 1.5rem;
+    user-select: none;
+    text-align: center;
+  }
+
+  /* Login & Register Form */
+  form {
+    display: grid;
+    gap: 1.1rem 1.6rem;
+  }
+
+  form label {
+    font-weight: 600;
+    color: #532d9f;
+    font-size: 1rem;
+  }
+
+  form input {
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 2px solid #d6d8fb;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+  }
+
+  form input:focus {
+    border-color: #7b2ff7;
+  }
+
+  button {
+    background: #7b2ff7;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 0.9rem 0;
+    font-weight: 700;
+    font-size: 1.15rem;
+    border-radius: 14px;
+    box-shadow: 0 5px 16px rgba(123, 47, 247, 0.7);
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background: #6441a5;
+  }
+
+  /* Toggle login/register links */
+  #toggle-login, #toggle-register {
+    margin-top: 1rem;
+    text-align: center;
+    color: #532d9f;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    user-select: none;
+    text-decoration: underline;
+  }
+
+  #toggle-login:hover, #toggle-register:hover {
+    color: #7b2ff7;
+  }
+
+  /* App - CRUD section */
+  #app {
+    display: none;
+    max-width: 1000px;
+  }
+
+  #header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  #header-bar h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+
+  #logout-btn {
+    background: #e53935;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 3px 12px rgba(229, 57, 53, 0.5);
+    transition: background-color 0.3s ease;
+  }
+
+  #logout-btn:hover {
+    background: #b22a26;
+  }
+
+  section {
+    margin-bottom: 2.5rem;
+  }
+
+  /* Reservation FORM */
+  #reservation-form {
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.3rem 2.2rem;
+  }
+
+  #reservation-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #532d9f;
+  }
+
+  #reservation-form select,
+  #reservation-form input[type="text"],
+  #reservation-form input[type="email"],
+  #reservation-form input[type="tel"],
+  #reservation-form input[type="date"] {
+    width: 100%;
+    padding: 0.75rem 1.1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 2px solid #d6d8fb;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+  }
+
+  #reservation-form select:focus,
+  #reservation-form input[type="text"]:focus,
+  #reservation-form input[type="email"]:focus,
+  #reservation-form input[type="tel"]:focus,
+  #reservation-form input[type="date"]:focus {
+    border-color: #7b2ff7;
+  }
+
+  #reservation-form .full-width {
+    grid-column: 1 / -1;
+  }
+
+  #reservation-form button {
+    grid-column: 1 / -1;
+    background: #7b2ff7;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 0.9rem 0;
+    border: none;
+    cursor: pointer;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(123, 47, 247, 0.8);
+    transition: background-color 0.3s ease;
+  }
+  #reservation-form button:hover {
+    background: #6441a5;
+  }
+
+  /* Reservations Table */
+  #reservations-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  #reservations-table thead tr {
+    background: #7b2ff7;
+    color: white;
+    user-select: none;
+  }
+
+  #reservations-table th,
+  #reservations-table td {
+    padding: 0.8rem 1rem;
+    border: 1px solid #dedef6;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  #reservations-table tbody tr:nth-child(even) {
+    background: #f4f6fb;
+  }
+
+  /* Buttons in table */
+  .btn-edit,
+  .btn-delete {
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-edit {
+    background: #4caf50;
+    color: white;
+    margin-right: 0.5rem;
+    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.5);
+  }
+
+  .btn-edit:hover {
+    background: #3a8d42;
+  }
+
+  .btn-delete {
+    background: #e53935;
+    color: white;
+    box-shadow: 0 2px 10px rgba(229, 57, 53, 0.5);
+  }
+
+  .btn-delete:hover {
+    background: #b22a26;
+  }
+
+  .no-data {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 2rem 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    #reservation-form {
+      grid-template-columns: 1fr;
+    }
+
+    #reservations-table th,
+    #reservations-table td {
+      padding: 0.7rem 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  /* Modal styles */
+  #modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.52);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  #modal {
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 6px 25px rgba(101, 66, 255, 0.2);
+    position: relative;
+    user-select: none;
+  }
+  #modal header {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #6441a5;
+    text-align: center;
+  }
+  #modal button.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: #6441a5;
+    font-weight: 700;
+    user-select: none;
+  }
+  #modal form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.8rem;
+  }
+  #modal form label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #532d9f;
+  }
+  #modal form input[type="text"],
+  #modal form input[type="email"],
+  #modal form input[type="tel"],
+  #modal form input[type="date"],
+  #modal form select {
+    padding: 0.65rem 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 2px solid #d1d3f4;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+    width: 100%;
+  }
+  #modal form input[type="text"]:focus,
+  #modal form input[type="email"]:focus,
+  #modal form input[type="tel"]:focus,
+  #modal form input[type="date"]:focus,
+  #modal form select:focus {
+    border-color: #7b2ff7;
+  }
+  #modal form .full-width {
+    grid-column: 1 / -1;
+  }
+  #modal form button.submit-btn {
+    grid-column: 1 / -1;
+    padding: 0.8rem 0;
+    background: #7b2ff7;
+    border: none;
+    color: white;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 5px 16px rgba(123, 47, 247, 0.7);
+  }
+  #modal form button.submit-btn:hover {
+    background: #6441a5;
+  }
+
+  /* Login & Register */
+  #login-section, #register-section {
+    width: 100%;
+    max-width: 380px;
+    margin: auto;
+    background: white;
+    padding: 2rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(101, 66, 255, 0.15);
+  }
+
+  #register-section {
+    display: none;
+  }
+
+  .toggle-link {
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #532d9f;
+    cursor: pointer;
+    text-decoration: underline;
+    user-select: none;
+  }
+
+  .toggle-link:hover {
+    color: #7b2ff7;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login-section" aria-live="polite" aria-atomic="true" aria-label="Login section">
+  <h1>E-Salon Login</h1>
+  <form id="login-form" autocomplete="off" aria-label="Login form">
+    <label for="login-username">Username</label>
+    <input id="login-username" type="text" name="username" placeholder="Enter your username" required minlength="3" />
+    <label for="login-password">Password</label>
+    <input id="login-password" type="password" name="password" placeholder="Enter your password" required minlength="6" />
+    <button type="submit" id="login-btn">Login</button>
+  </form>
+  <p id="goto-register" class="toggle-link">Don't have an account? Register here</p>
+</section>
+
+<!-- REGISTER -->
+<section id="register-section" aria-label="Registration section">
+  <h1>E-Salon Registration</h1>
+  <form id="register-form" autocomplete="off" aria-label="Registration form">
+    <label for="register-username">Username</label>
+    <input id="register-username" type="text" name="username" placeholder="Choose a username" required minlength="3" />
+    <label for="register-password">Password</label>
+    <input id="register-password" type="password" name="password" placeholder="Choose a password" required minlength="6" />
+    <label for="register-password-confirm">Confirm Password</label>
+    <input id="register-password-confirm" type="password" name="password_confirm" placeholder="Repeat your password" required minlength="6" />
+    <button type="submit" id="register-btn">Register</button>
+  </form>
+  <p id="goto-login" class="toggle-link">Already have an account? Login here</p>
+</section>
+
+<!-- MAIN APP -->
+<section id="app" aria-label="E-Salon Reservation Management App">
+  <div id="header-bar">
+    <h1>E-Salon Reservation System</h1>
+    <button id="logout-btn" aria-label="Logout">Logout</button>
+  </div>
+
+  <section id="create-section" aria-label="Add new reservation">
+    <h2>Add New Reservation</h2>
+    <form id="reservation-form" autocomplete="off" aria-label="Add new reservation form">
+      <div>
+        <label for="service-select">Service</label>
+        <select id="service-select" name="service" required aria-required="true">
+          <option value="" disabled selected>Select a service</option>
+          <option value="Haircut">Haircut</option>
+          <option value="Hair Coloring">Hair Coloring</option>
+          <option value="Hair Styling">Hair Styling</option>
+          <option value="Manicure">Manicure</option>
+          <option value="Pedicure">Pedicure</option>
+          <option value="Facial">Facial</option>
+        </select>
+      </div>
+      <div>
+        <label for="date-input">Date</label>
+        <input type="date" id="date-input" name="date" required aria-required="true" min="" />
+      </div>
+      <div>
+        <label for="time-select">Time</label>
+        <select id="time-select" name="time" required aria-required="true">
+          <option value="" disabled selected>Select time</option>
+          <option value="09:00 AM">09:00 AM</option>
+          <option value="10:00 AM">10:00 AM</option>
+          <option value="11:00 AM">11:00 AM</option>
+          <option value="12:00 PM">12:00 PM</option>
+          <option value="01:00 PM">01:00 PM</option>
+          <option value="02:00 PM">02:00 PM</option>
+          <option value="03:00 PM">03:00 PM</option>
+          <option value="04:00 PM">04:00 PM</option>
+          <option value="05:00 PM">05:00 PM</option>
+        </select>
+      </div>
+      <div>
+        <label for="name-input">Name</label>
+        <input type="text" id="name-input" name="name" placeholder="Full name" minlength="2" required aria-required="true" />
+      </div>
+      <div>
+        <label for="phone-input">Phone</label>
+        <input type="tel" id="phone-input" name="phone" placeholder="08xxxxxxxxxx" required aria-required="true" />
+      </div>
+      <div class="full-width">
+        <label for="email-input">Email</label>
+        <input type="email" id="email-input" name="email" placeholder="you@example.com" required aria-required="true" />
+      </div>
+      <button type="submit" id="add-btn">Add Reservation</button>
+    </form>
+  </section>
+
+  <section id="list-section" aria-label="Reservations list">
+    <h2>Reservations List</h2>
+    <table id="reservations-table" aria-label="List of reservations">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="7" class="no-data">No reservations found.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</section>
+
+<!-- MODAL FOR EDIT -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+  <div id="modal">
+    <button class="close-button" aria-label="Close modal">&times;</button>
+    <header><h2 id="modal-title">Edit Reservation</h2></header>
+    <form id="edit-form" autocomplete="off">
+      <div>
+        <label for="edit-service">Service</label>
+        <select id="edit-service" name="service" required aria-required="true">
+          <option value="" disabled>Select a service</option>
+          <option value="Haircut">Haircut</option>
+          <option value="Hair Coloring">Hair Coloring</option>
+          <option value="Hair Styling">Hair Styling</option>
+          <option value="Manicure">Manicure</option>
+          <option value="Pedicure">Pedicure</option>
+          <option value="Facial">Facial</option>
+        </select>
+      </div>
+      <div>
+        <label for="edit-date">Date</label>
+        <input type="date" id="edit-date" name="date" required aria-required="true" min="" />
+      </div>
+      <div>
+        <label for="edit-time">Time</label>
+        <select id="edit-time" name="time" required aria-required="true">
+          <option value="" disabled>Select time</option>
+          <option value="09:00 AM">09:00 AM</option>
+          <option value="10:00 AM">10:00 AM</option>
+          <option value="11:00 AM">11:00 AM</option>
+          <option value="12:00 PM">12:00 PM</option>
+          <option value="01:00 PM">01:00 PM</option>
+          <option value="02:00 PM">02:00 PM</option>
+          <option value="03:00 PM">03:00 PM</option>
+          <option value="04:00 PM">04:00 PM</option>
+          <option value="05:00 PM">05:00 PM</option>
+        </select>
+      </div>
+      <div>
+        <label for="edit-name">Name</label>
+        <input type="text" id="edit-name" name="name" placeholder="Full name" minlength="2" required aria-required="true" />
+      </div>
+      <div>
+        <label for="edit-phone">Phone</label>
+        <input type="tel" id="edit-phone" name="phone" placeholder="08xxxxxxxxxx" required aria-required="true" />
+      </div>
+      <div class="full-width">
+        <label for="edit-email">Email</label>
+        <input type="email" id="edit-email" name="email" placeholder="you@example.com" required aria-required="true" />
+      </div>
+      <button type="submit" class="submit-btn">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (() => {
+    // Elements
+    const loginSection = document.getElementById('login-section');
+    const registerSection = document.getElementById('register-section');
+    const appSection = document.getElementById('app');
+
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const gotoRegister = document.getElementById('goto-register');
+    const gotoLogin = document.getElementById('goto-login');
+
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const addForm = document.getElementById('reservation-form');
+    const tableBody = document.querySelector('#reservations-table tbody');
+
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalCloseBtn = modalOverlay.querySelector('.close-button');
+    const editForm = document.getElementById('edit-form');
+
+    const todayISO = new Date().toISOString().split('T')[0];
+    document.getElementById('date-input').min = todayISO;
+    document.getElementById('edit-date').min = todayISO;
+
+    // Local storage keys
+    const LS_USERS = 'esalonUsers';
+    const LS_CURRENT_USER = 'esalonCurrentUser';
+
+    let currentUser = null;
+    let reservations = [];
+
+    // ----- USER AUTH FUNCTIONS -----
+    function getUsers() {
+      return JSON.parse(localStorage.getItem(LS_USERS)) || [];
+    }
+    function saveUsers(users) {
+      localStorage.setItem(LS_USERS, JSON.stringify(users));
+    }
+    function findUser(username) {
+      return getUsers().find(u => u.username.toLowerCase() === username.toLowerCase());
+    }
+    function setCurrentUser(username) {
+      localStorage.setItem(LS_CURRENT_USER, username);
+    }
+    function getCurrentUser() {
+      return localStorage.getItem(LS_CURRENT_USER);
+    }
+    function clearCurrentUser() {
+      localStorage.removeItem(LS_CURRENT_USER);
+    }
+
+    // ----- RESERVATION FUNCTIONS -----
+    function loadReservations() {
+      if (!currentUser) return [];
+      return JSON.parse(localStorage.getItem(`esalonReservations_${currentUser.username}`)) || [];
+    }
+    function saveReservations() {
+      if (!currentUser) return;
+      localStorage.setItem(`esalonReservations_${currentUser.username}`, JSON.stringify(reservations));
+    }
+    function renderTable() {
+      tableBody.innerHTML = '';
+      if (reservations.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 7;
+        td.className = 'no-data';
+        td.textContent = 'No reservations found.';
+        tr.appendChild(td);
+        tableBody.appendChild(tr);
+        return;
+      }
+      reservations.forEach((resv, index) => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${resv.service}</td>
+          <td>${resv.date}</td>
+          <td>${resv.time}</td>
+          <td>${resv.name}</td>
+          <td>${resv.phone}</td>
+          <td>${resv.email}</td>
+          <td>
+            <button class="btn-edit" data-index="${index}">Edit</button>
+            <button class="btn-delete" data-index="${index}">Delete</button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+    function isSlotTaken(service, date, time, excludeIndex = -1) {
+      return reservations.some((r, idx) => 
+        idx !== excludeIndex && 
+        r.service === service && 
+        r.date === date && 
+        r.time === time);
+    }
+    function clearAddForm() {
+      addForm.reset();
+      document.getElementById('date-input').min = todayISO;
+    }
+
+    // ----- DOM EVENT HANDLERS -----
+
+    // Login form
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const username = loginForm['username'].value.trim();
+      const password = loginForm['password'].value;
+      if (!username || !password) {
+        alert('Please enter username and password.');
+        return;
+      }
+      const user = findUser(username);
+      if (!user || user.password !== password) {
+        alert('Invalid username or password.');
+        return;
+      }
+      currentUser = user;
+      setCurrentUser(currentUser.username);
+      reservations = loadReservations();
+      clearFormInputs(loginForm);
+      showApp();
+    });
+
+    // Register form
+    registerForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const username = registerForm['username'].value.trim();
+      const password = registerForm['password'].value;
+      const passwordConfirm = registerForm['password_confirm'].value;
+      if (!username || !password || !passwordConfirm) {
+        alert('Please fill all the registration fields.');
+        return;
+      }
+      if (password !== passwordConfirm) {
+        alert('Passwords do not match.');
+        return;
+      }
+      if (findUser(username)) {
+        alert('Username already taken. Please choose another.');
+        return;
+      }
+      const users = getUsers();
+      users.push({ username: username, password: password });
+      saveUsers(users);
+      alert('Registration successful! Please login.');
+      clearFormInputs(registerForm);
+      showSection(loginSection);
+    });
+
+    // Toggle links
+    gotoRegister.addEventListener('click', () => showSection(registerSection));
+    gotoLogin.addEventListener('click', () => showSection(loginSection));
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to logout?')) {
+        clearCurrentUser();
+        currentUser = null;
+        reservations = [];
+        showSection(loginSection);
+      }
+    });
+
+    // Add new reservation
+    addForm.addEventListener('submit', e => {
+      e.preventDefault();
+      if (!currentUser) {
+        alert('Please login first.');
+        return;
+      }
+      const service = addForm.service.value;
+      const date = addForm.date.value;
+      const time = addForm.time.value;
+      const name = addForm.name.value.trim();
+      const phone = addForm.phone.value.trim();
+      const email = addForm.email.value.trim();
+      if (!service || !date || !time || !name || !phone || !email) {
+        alert('Please fill all fields correctly.');
+        return;
+      }
+      if (new Date(date) < new Date(todayISO)) {
+        alert('Please select today or a future date.');
+        return;
+      }
+      if (isSlotTaken(service, date, time)) {
+        alert('Selected slot is already booked. Please choose another.');
+        return;
+      }
+      reservations.push({ service, date, time, name, phone, email });
+      saveReservations();
+      renderTable();
+      clearAddForm();
+      alert('Reservation added.');
+    });
+
+    // Edit / Delete buttons
+    tableBody.addEventListener('click', e => {
+      if (e.target.classList.contains('btn-edit')) {
+        const idx = +e.target.dataset.index;
+        openEditModal(idx);
+      } else if (e.target.classList.contains('btn-delete')) {
+        const idx = +e.target.dataset.index;
+        if (confirm('Are you sure you want to delete this reservation?')) {
+          reservations.splice(idx, 1);
+          saveReservations();
+          renderTable();
+        }
+      }
+    });
+
+    // Edit modal variables and functions
+    let editingIndex = null;
+    function openEditModal(idx) {
+      editingIndex = idx;
+      const resv = reservations[idx];
+      if (!resv) return;
+      modalOverlay.style.display = 'flex';
+      editForm.service.value = resv.service;
+      editForm.date.value = resv.date;
+      editForm.time.value = resv.time;
+      editForm.name.value = resv.name;
+      editForm.phone.value = resv.phone;
+      editForm.email.value = resv.email;
+      document.getElementById('edit-date').min = todayISO;
+      editForm.service.focus();
+    }
+    function closeModal() {
+      modalOverlay.style.display = 'none';
+      editingIndex = null;
+      editForm.reset();
+    }
+    modalCloseBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', e => {
+      if (e.target === modalOverlay) {
+        closeModal();
+      }
+    });
+    editForm.addEventListener('submit', e => {
+      e.preventDefault();
+      if (editingIndex === null) {
+        alert('No reservation selected for editing!');
+        return;
+      }
+      const service = editForm.service.value;
+      const date = editForm.date.value;
+      const time = editForm.time.value;
+      const name = editForm.name.value.trim();
+      const phone = editForm.phone.value.trim();
+      const email = editForm.email.value.trim();
+      if (!service || !date || !time || !name || !phone || !email) {
+        alert('Please fill all fields correctly.');
+        return;
+      }
+      if (new Date(date) < new Date(todayISO)) {
+        alert('Please select today or a future date.');
+        return;
+      }
+      if (isSlotTaken(service, date, time, editingIndex)) {
+        alert('Selected slot is already booked. Please choose another.');
+        return;
+      }
+      reservations[editingIndex] = { service, date, time, name, phone, email };
+      saveReservations();
+      renderTable();
+      closeModal();
+      alert('Reservation updated.');
+    });
+
+    // Helper to clear form inputs
+    function clearFormInputs(form) {
+      form.reset();
+    }
+
+    // Show app UI
+    function showApp() {
+      loginSection.style.display = 'none';
+      registerSection.style.display = 'none';
+      appSection.style.display = 'block';
+      renderTable();
+    }
+
+    // Show given section, hide others
+    function showSection(section) {
+      loginSection.style.display = 'none';
+      registerSection.style.display = 'none';
+      appSection.style.display = 'none';
+      section.style.display = 'block';
+    }
+
+    // On load check if already logged in
+    window.addEventListener('load', () => {
+      const savedUsername = getCurrentUser();
+      if (savedUsername) {
+        const user = findUser(savedUsername);
+        if (user) {
+          currentUser = user;
+          reservations = loadReservations();
+          showApp();
+          return;
+        }
+      }
+      showSection(loginSection);
+    });
+
+  })();
+</script>
+
+</body>
+</html>
+
